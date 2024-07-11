@@ -74,7 +74,6 @@
 //! ```
 
 use imgui::{self, BackendFlags, ConfigFlags, Context, Io, Key, Ui};
-use std::cmp::Ordering;
 
 // Re-export winit to make it easier for users to use the correct version.
 pub use winit;
@@ -113,7 +112,7 @@ fn to_winit_cursor(cursor: imgui::MouseCursor) -> MouseCursor {
         imgui::MouseCursor::ResizeEW => MouseCursor::EwResize,
         imgui::MouseCursor::ResizeNESW => MouseCursor::NeswResize,
         imgui::MouseCursor::ResizeNWSE => MouseCursor::NwseResize,
-        imgui::MouseCursor::Hand => MouseCursor::Grab,
+        imgui::MouseCursor::Hand => MouseCursor::Pointer,
         imgui::MouseCursor::NotAllowed => MouseCursor::NotAllowed,
     }
 }
@@ -499,20 +498,10 @@ impl WinitPlatform {
                 ..
             } => {
                 let (h, v) = match delta {
-                    MouseScrollDelta::LineDelta(h, v) => (h, v),
+                    MouseScrollDelta::LineDelta(h, v) => (h / 3.0, v / 3.0),
                     MouseScrollDelta::PixelDelta(pos) => {
                         let pos = pos.to_logical::<f64>(self.hidpi_factor);
-                        let h = match pos.x.partial_cmp(&0.0) {
-                            Some(Ordering::Greater) => 1.0,
-                            Some(Ordering::Less) => -1.0,
-                            _ => 0.0,
-                        };
-                        let v = match pos.y.partial_cmp(&0.0) {
-                            Some(Ordering::Greater) => 1.0,
-                            Some(Ordering::Less) => -1.0,
-                            _ => 0.0,
-                        };
-                        (h, v)
+                        ((pos.x / 100.0) as f32, (pos.y / 100.0) as f32)
                     }
                 };
                 io.add_mouse_wheel_event([h, v]);
