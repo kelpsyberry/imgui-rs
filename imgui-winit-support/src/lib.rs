@@ -122,7 +122,7 @@ impl CursorSettings {
         match self.cursor {
             Some(mouse_cursor) if !self.draw_cursor => {
                 window.set_cursor_visible(true);
-                window.set_cursor_icon(to_winit_cursor(mouse_cursor));
+                window.set_cursor(to_winit_cursor(mouse_cursor));
             }
             _ => window.set_cursor_visible(false),
         }
